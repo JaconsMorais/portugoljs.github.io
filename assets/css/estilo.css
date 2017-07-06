@@ -1,0 +1,128 @@
+#my_file {
+    display: none;
+}
+
+table .collapse.in {
+	display:table-row;
+}
+
+#codeDiv{
+  margin:5px 5px 5px 5px;
+  width:100%;
+  height:700px;
+  float:left;
+}
+
+#codeExec{
+  width:40%;
+  height:700px;
+  float:right;
+  font-family:Courier;
+  color: #CCCCCC;
+  background: #000000;
+  border: 3px double #CCCCCC;
+}
+
+#container{
+  /*width:100%;*/
+  min-height: 400px;
+  background-color:#E4E4E4;
+}
+#container{
+  margin-left:10px;
+  margin-right:10px;
+}
+
+
+#output{
+  height: 310px;
+  width: 100%;
+  font-family:Courier;
+  color: #CCCCCC;
+  background: #000000;
+  /*white-space: nowrap;*/
+  font-size:11.5px;
+  letter-spacing:0px;
+}
+
+#InputBox{
+  width: 100%;
+}
+
+/* css para modal da saida */
+#modalBody{
+  padding:0px !important; /*retirando css do boostrap */
+}
+
+#modalFooter{
+  margin-top: 0px !important; /*retirando css do boostrap */
+}
+
+.line-error {
+  background: #FBC2C4 !important;
+  color: #8a1f11 !important;
+}
+
+.line-normal {
+  background: white !important;
+  color: black;
+}
+
+.line-depurador {
+  background: #00FFFF !important;
+  color: #8a1f11 !important;
+}
+
+input[disabled='disabled']{
+	border: none;
+	background-color:white;
+}
+
+/*tamanho da linha */
+.CodeMirror{ line-height:18px;}
+.CodeMirror-gutters{
+  width: 50px;
+}
+.breakpoints {width: 15px;}
+.breakpoint { color: #822; }
+.CodeMirror {border: 1px solid #aaa;}
+
+.tooltip-inner {
+  max-width: none !important;
+  white-space: nowrap !important;
+  text-align: center;
+  -webkit-border-radius: 0px;
+  -moz-border-radius: 0px;
+  border-radius: 0px;
+  margin-bottom: 6px;
+  background-color: black;
+  font-size: 14px;
+}
+
+/*
+teste tooltip
+*/
+
+.tooltipVar {
+  position: absolute;
+  /*display: inline-block;*/
+  border-bottom: 1px dotted black;
+}
+
+.tooltipVar .tooltiptextVar {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  /*display: block;*/
+  /* Position the tooltip */
+  position: fixed;
+  z-index: 1000;
+}
+
+.tooltipVar:hover .tooltiptextVar {
+  visibility: visible;
+}

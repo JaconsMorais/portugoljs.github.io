@@ -1,0 +1,5 @@
+Eliminação função writeln e readln;
+Quebra de linha é realizada por "\n" na função write
+
+Erro com linha de código  I := 3\t
+Erro em armazenar linhas com apenas um símbolo como : ql

@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Compilador</title>
+
+  <!-- <script src="js/javascript.js"></script> -->
+
+  <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>-->
+
+  <!-- importação codemirror -->
+  <link rel="stylesheet" href="codemirror/lib/codemirror.css">
+  <!-- <link rel="stylesheet" href="assets/css/codemirror.css" type="text/css"/> -->
+  <script src="codemirror/lib/codemirror.js"></script>
+  <script src="codemirror/mode/pascal/pascal.js"></script>
+
+  <!-- JS e CSS para pagina -->
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="assets/css/estilo.css" type="text/css"/>
+  <script src="assets/lib/jquery.min.js"></script>
+  <script src="assets/lib/bootstrap.min.js" type="text/javascript"> </script>
+  <script async src="assets/lib/shortcuts.js"></script>
+  <script async src="assets/js/Declarações.js"></script>
+  <script async src="assets/js/Auxiliares.js"></script>
+  <script async src="assets/js/Depurador.js"></script>
+  <script async src="assets/js/Compilador.js"></script>
+  <script async src="assets/js/Interpretador.js"></script>
+
+</head>
+<body onload="SetTemplate();">
+  <div id="container">
+    <!-- Static navbar -->
+    <div class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Compilador de Pseudo-código</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <!--<li class="active"><a href="#">Link</a></li>
+            <li><a href="#">Link</a></li>
+            <li><a href="#">Link</a></li>-->
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div><!--/.container-fluid -->
+    </div>
+
+    <div id="containerCode">
+      <div id="codeDiv">
+        <form name="form">
+          <textarea id="codebox"></textarea>
+        </form>
+
+        <div style="float:right;">
+
+          <button  id="continuar" type="button" class="btn btn-default" title="Continuar Execução">
+            <span class="glyphicon glyphicon-step-forward"></span>
+          </button>
+
+          <button  id="exe_cursor" type="button" class="btn btn-default" title="Executar até o cursor">
+            <span class="glyphicon glyphicon-arrow-down"></span>
+          </button>
+
+          <button  id="prox_funcao" type="button" class="btn btn-default" title="Pular próxima função - F8" onclick ="byRoutine();">
+            <span class="glyphicon glyphicon-share-alt"></span>
+          </button>
+
+          <button  id="exe_entrando" type="button" class="btn btn-default" title="Executar linha-a-linha entrando em funções - F7" onclick="inRoutine();">
+            <span class="glyphicon glyphicon-resize-small"></span>
+          </button>
+
+          <button id="exe_saindo" type="button" class="btn btn-default" title="Executar linha-a-linha saindo em funções - Ctrl+F8" onclick="outRoutine();">
+            <span class="glyphicon glyphicon-resize-full"></span>
+          </button>
+
+
+          <input type="checkbox" name="checkbox" id="nao_parar" value="value">
+          <label id="lb_nao_parar" for="nao_parar">Não Parar</label>
+
+
+
+          <button id="novo" type="button" class="btn btn-default" title="Carregar Arquivo de Instruções" onclick="openFile(event);">
+            <span class="glyphicon glyphicon-upload"></span>
+          </button>
+
+          <input type="file" id="my_file" accept='text/plain' onchange='openFile(event)'>
+
+          <button id="salvar" type="button" class="btn btn-default" title="Salvar Arquivo de Instruções" visibility="hidden" onclick="download('arquivo.pse', 'application/octet-stream')">
+            <span class="glyphicon glyphicon-floppy-disk"></span>
+          </button>
+
+          <button id="mostra_console" type="button" class="btn btn-default" title="Mostrar Console" onclick="mostrarModalOutput();">
+            <span class="glyphicon glyphicon-list-alt"></span>
+          </button>
+
+          <button name="depurar" id="depurar" type="button" class="btn btn-default" title="Depurar - F6" onclick="debug();">
+            <span class="glyphicon glyphicon-sort"></span>
+          </button>
+
+          <button id="btCompilar" type="button" class="btn btn-default" title="Compilar - F9" onclick="compiler();">
+            <span class="glyphicon glyphicon-cog"></span>
+          </button>
+
+          <button name="play" id="play" type="button" class="btn btn-default" title="Compilar e executar - F10" onclick="compileAndExecute();">
+            <span class="glyphicon glyphicon-play"></span>
+          </button>
+
+        </div>
+
+        <!-- <button name="depurar" id="compilar" type="button" class="btn btn-default" onclick="mostraItensDepuracao(true)">
+        <span class="glyphicon glyphicon-floppy-disk">add</span>
+      </button> -->
+
+      <!-- <button name="depurar" id="compilar" type="button" class="btn btn-default" onclick="mostraItensDepuracao(false)">
+      <span class="glyphicon glyphicon-floppy-disk">att</span>
+    </button> -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalOutput" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Saída</h4>
+          </div>
+          <div id="modalBody" class="modal-body">
+            <textarea id="output" disabled="true" rows="200"></textarea>
+            <input id="InputBox" type="text" onkeypress="return runScript(event)" autofocus="true"/>
+          </div>
+          <div id="modalFooter" class="modal-footer">
+            <!--<button type="button" class="btn btn-default" onclick="limpaConsole()" >Limpar</button>-->
+            <button id="btNovamente" type="button" class="btn btn-default" onclick="reexecute();" >Executar Novamente</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Esconder</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--  fim Modal -->
+
+
+  </div>
+
+  <div id="coluna_direita" style="width:295px; height:400px; float:right; visible:none; background-color:white; margin:2px;  overflow: auto;" >
+    <div id="pilha" style="width:100%">
+      <table class="table table-bordered" id="tab_logic">
+        <thead>
+          <tr >
+            <th colspan="2">Pilha de execução</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- inserir linhas pilha execucao-->
+        </tbody>
+      </table>
+    </div>
+
+    <div id="vars">
+      <table id="tab_var" class="table table-bordered" style="margin-bottom:5px !important;">
+        <thead>
+          <tr >
+            <th colspan="2">Variáveis</th>
+          </tr>
+          <tr>
+            <th>Nome</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- inserir linhas pilha variaveis-->
+        </tbody>
+      </table>
+      <button type="button" class="btn btn-default" onclick="ativarTabelaVar()">Editar</button>
+      <button type="button" class="btn btn-default" onclick="salvar()">Salvar</button>
+    </div>
+  </div>
+
+</div><!-- fim do jumbotron -->
+</div>
+<div style="clear:both;"/>
+<br>
+<!--Debug painel -->
+<div id="debugPanel" class="panel panel-danger" style="max-height: 200px; width:98.5%; margin-left:9px; overflow:auto;">
+  <div class="panel-heading">
+    <h3 class="panel-title">Debug</h3>
+  </div>
+
+  <table class="table table-bordered" id="panel-error">
+    <thead>
+      <tr >
+        <th colspan="2"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- inserir linhas pilha execucao-->
+    </tbody>
+  </table>
+  <!-- <textarea id="panel-error" disabled="true"></textarea> -->
+</div>
+</div>
+<!--fim debug painel -->
+</div>
+</body>
+
+
+<script>
+
+  document.getElementById("debugPanel").style.visibility = "hidden";
+
+  var editor = CodeMirror.fromTextArea(document.getElementById("codebox"), {
+    lineNumbers: true,
+    mode: "text/x-pascal",
+    gutters: ["CodeMirror-linenumbers", "breakpoints"]
+  });
+  editor.on("change", function(){
+    codeChanged = true;
+  });
+
+  editor.on("gutterClick", function(cm, n) {
+    var info = cm.lineInfo(n);
+    cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : fazerPontoParada());
+  });
+
+  editor.on('cursorActivity', function(){
+    var A1 = editor.getCursor().line;
+    var A2 = editor.getCursor().ch;
+
+    var B1 = editor.findWordAt({line: A1, ch: A2}).anchor.ch;
+    var B2 = editor.findWordAt({line: A1, ch: A2}).head.ch;
+
+    console.log(procuraVar(editor.getRange({line: A1,ch: B1}, {line: A1,ch: B2})))
+  });
+
+
+</script>
+<script async>
+  function compileAndExecute(){
+    time = new Date().getTime();
+    InputFile = editor.getValue();
+    isOk = true;
+    isDone = false;
+    compiladorPascalS();
+    document.getElementById("output").value = "";
+    time = new Date().getTime() - time;
+    if (isOk && isDone){
+      mostraErro();
+      mostrarModalOutput();
+      debug_op = false;
+      setTimeout(function(){
+        call_read = false;
+        interpret();
+      }, 300);
+    }
+    else {
+      if (isDone){
+        mostraErro();
+        mostrarModalOutput();
+        debug_op = false;
+        setTimeout(function(){
+          call_read = false;
+          interpret();
+          scrollOutput();
+        }, 300);
+      }
+      else {
+        if (isDone){
+          mostraErro();
+        }
+      }
+      //alert(text);
+    }
+  }
+
+</script>
+
+</html>

@@ -1,0 +1,24 @@
+programa test
+var
+	i:inteiro
+    pp:real
+    x:real
+    s:string
+    b:logico
+    c:caractere
+    pi:^real
+    arr : arranjo [0..5] de ^inteiro
+
+inicio
+	i := 4 div 2
+    x := 10*3
+    pi := @x
+    escreva(pi^)
+
+    arr[0] := @i
+    escreva('\n',arr[0]^,'\n',i)
+    s := 'J'+'acons de Souza Mora'+'is'
+    b := falso
+    c := 'A'
+    escreva('\nNovo texto')
+fim
