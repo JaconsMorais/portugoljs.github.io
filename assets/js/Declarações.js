@@ -219,7 +219,7 @@ function DebugObject(memoryTHIS){
 		limpaLinhaDepurador();
 		this.isRunning = true;
 		this.state = 0;
-		adicionarTabelaPilha(progname);
+		updateCallStack(progname, true);
 		this.showVariablesToUser();
 		activedVariables = [];
 		n = 0;
@@ -318,6 +318,10 @@ function DebugObject(memoryTHIS){
 
 	}
 
+	this.saveChangesFromUser = function(){
+
+	}
+
 	this.showVariablesToUser = function(id = 0){
 		if(id == 0)		//variáveis da rotina principal
 			id = btab[2].last;
@@ -328,6 +332,14 @@ function DebugObject(memoryTHIS){
 				insertVariableInDebugPanel(this.activeVariable(id));
 			id = tab[id].link;
 		}
+	}
+
+	this.insertNameInCallStack = function(name){
+		updateCallStack(name, true);
+	}
+
+	this.removeNameInCallStack = function(){
+		updateCallStack('', false);
 	}
 
 	this.activeVariable = function(id){
@@ -356,19 +368,19 @@ function InputObject(memoryTHIS){
 				switch (typeOfData) {
 					case ints:
 						MEMORY.setInt(MEMORY.getInt(), parseInt(value));
-						atualizaVariavel(MEMORY.popInt(), parseInt(value));
+						//atualizaVariavel(MEMORY.popInt(), parseInt(value));
 					break;
 					case reals:
 						MEMORY.setFloat(MEMORY.getInt(), Number(value));
-						atualizaVariavel(MEMORY.popInt(), Number(value));
+						//atualizaVariavel(MEMORY.popInt(), Number(value));
 					break;
 					case chars:
 						MEMORY.setChar(MEMORY.getInt(), value[0]);
-						atualizaVariavel(MEMORY.popInt(), value[0]);
+						//atualizaVariavel(MEMORY.popInt(), value[0]);
 					break;
 					case strings:
 						MEMORY.setInt(MEMORY.getInt(), MEMORY.setString(value, MEMORY.getInt(MEMORY.getInt()), false));
-						atualizaVariavel(MEMORY.popInt(), value)
+						//atualizaVariavel(MEMORY.popInt(), value)
 					break;
 				}
 			}

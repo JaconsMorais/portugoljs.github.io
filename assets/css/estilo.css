@@ -73,7 +73,7 @@ table .collapse.in {
   color: #8a1f11 !important;
 }
 
-input[disabled='disabled']{
+input[readOnly= "true"]{
 	border: none;
 	background-color:white;
 }

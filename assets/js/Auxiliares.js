@@ -299,7 +299,7 @@ function insertDebugHTML(){
       <div class="col-md-6 col-xs-12">
         <div id="pilha" style="width:100%; float:right">
           <div class="table-responsive" style="max-height:320px; overflow-y:auto;">
-            <table class="table table-bordered" id="tab_logic" style="border: 0px solid #dddddd;">
+            <table class="table table-bordered" id="tab_callstack" style="border: 0px solid #dddddd;">
               <thead>
                 <tr >
                   <th colspan="2">Pilha de execução</th>
@@ -333,90 +333,30 @@ function limpaDebug(){
 //fim funcoes debug
 
 //funcoes para pilha
-function adicionarTabelaPilha(funcao) {
-	/*$('#tab_logic').append('<tr><td>'+ funcao + '</td></tr>');*/
-	var table = document.getElementById("tab_logic");
-	var row = table.insertRow(1);
-	var cell1 = row.insertCell(0);
-	cell1.innerHTML = funcao;
+function updateCallStack(funcao, add) {
+	if(add){
+		var table = document.getElementById("tab_callstack");
+		var row = table.insertRow(1);
+		var cell1 = row.insertCell(0);
+		cell1.innerHTML = funcao;
+	}
+	else
+		document.getElementById("tab_callstack").deleteRow(1);
+
 }
 
-function removerTopoPilha() {
-	document.getElementById("tab_logic").deleteRow(1);
-}
 
 function getNumberStacks(){
-	return document.getElementById("tab_logic").rows.length - 1;
+	return document.getElementById("tab_callstack").rows.length - 1;
 }
 
 function removerTodaPilhaFuncoes(){
-	$("#tab_logic tr:gt(1	)").remove();
+	$("#tab_callstack tr:gt(1	)").remove();
 }
 
 //fim funcoes para pilha
 
 //funcoes para pilha de variaveis
-//array de objetos
-var arrayObjetoTabela = [];
-//Carregar variáveis no depurador
-
-function carregaVariaveis(start){//str_tab
-	var value, itab = start-1;
-	if (tab[itab].lev <= display.length-1)
-		return;
-	while(tab[start] instanceof Ttab && tab[start].obj != "prozedure" && tab[start].obj != "funktion" && tab[start].name != "") {
-		if (tab[start].obj != "prozedure" && tab[start].obj != "funktion"){
-			switch (tab[start].typ) {
-				case "reals":
-				value = s.getFloat64(display[tab[start].lev]+tab[start].adr);
-				break;
-				case "chars":
-				value = String.fromCharCode(s.getUint8(display[tab[start].lev]+tab[start].adr));
-				break;
-				case "bools":
-				value = (s.getUint8(display[tab[start].lev]+tab[start].adr) == 0)?"falso":"verdadeiro";
-				break;
-				case "strings":
-				if (s.getInt32(display[tab[start].lev]+tab[start].adr) != 0)
-				value = getString(s.getInt32(display[tab[start].lev]+tab[start].adr));
-				else
-				value = "";
-				break;
-				default:
-				value = s.getInt32(display[tab[start].lev]+tab[start].adr);
-			}
-			if(tab[start].typ == "records"){
-				if (tab[start].obj == "variable") {
-					var ref = tab[start].ref;
-					adicionarObjetoVar(tab[start].name, value, start, tab[start].lev, tab[start].adr);
-					if (ref !== undefined && ref !== 0) {
-						var prox = (btab[ref].last);
-						if (prox !== undefined && prox !== 0) {
-							do {
-								start++;
-								adicionarObjetoFilho(tab[prox].name, value, prox, tab[prox].lev, tab[prox].adr);
-								prox = tab[prox].link;
-							} while (prox !== 0);
-						}
-					}
-				}
-			}
-
-			if((tab[start].obj == "variable" || tab[start].obj == "konstant")){
-
-				if(tab[start].typ == "arrays") {
-					adicionarObjetoVar(tab[start].name, value, start, tab[start].lev, tab[start].adr);
-				}else{
-					adicionarObjetoVar(tab[start].name, value, start, tab[start].lev, tab[start].adr);
-					if (tab[start].lev < 2) {
-					}
-
-				}
-			}
-			start++;
-		}
-	}
-}
 
 function procuraVar(id){
 	var valor;
@@ -515,17 +455,24 @@ function insertVariableInDebugPanel(variable, idRow = 2, ref = tab[variable.id].
 					else
 						variable.value = 'falso';
 				cell1.innerHTML = variable.name;
-				cell2.innerHTML = "<input type='text' value='"+ variable.value +"'name='"+variable.id+"' id='"+ variable.id +"'>";
+				cell2.innerHTML = "<input type='text' readOnly='true' value='"+ variable.value +"'name='"+typ+"' id='"+ (Interpreter.getBase(variable.lv) + variable.adr + offset) +"'onclick='enableInputField(this);'>";
 			}
 			else {
 				cell1.innerText = normalizeComposedLabel(variable, name);
-				cell2.innerText = Interpreter.getValueWithIndexToTab(variable.id, ref, offset, typ);
+				cell2.innerHTML = "<input type='text' readOnly='true' value='"+ Interpreter.getValueWithIndexToTab(variable.id, ref, offset, typ) +"'name='"+typ+"' id='"+ (Interpreter.getBase(variable.lv) + variable.adr + offset) +"'onclick='enableInputField(this);'>";
 			}
 
 		break;
 	}
-	disableVariableInput();
 	return row;
+}
+
+function enableInputField(input){
+	input.readOnly = false;
+}
+
+function disableInputField(input){
+	input.readOnly = true;
 }
 
 function normalizeComposedLabel(variable, label){
@@ -569,7 +516,7 @@ function insertComposedFields(row, typ, cell1, cell2, variable, offset, ref, nam
 
 	addEventInCell(show, cell2, lastRow, table, row, variable, offset, ref, typ, name);
 	cell2.innerHTML = "<i class='glyphicon glyphicon-plus'></i><div id='variableToggle_"+variable.id+"'>";
-	cell1.innerText = variable.name + normalizeComposedLabel({}, name);
+	cell1.innerText = (name === '' ? variable.name : '') + normalizeComposedLabel({}, name);
 	setAttributeInComposedRow(row, variable.id);
 }
 
@@ -599,74 +546,22 @@ function addEventInCell(show, cell, lastRow, table, row, variable, offset, ref, 
 				}
 			}
 			else{
-				mOffset = offset;
 				n = btab[ref].last;
 				mTyp = tab[n].typ;
 				mRef = tab[n].ref;
-				mOffset += btab[ref].vsize;
+				mOffset = tab[n].adr + offset;
 				cell.innerHTML = "<i class='glyphicon glyphicon-minus'></i><div id='variableToggle_"+variable.id+"'>"
 				while(n != 0){
 					lastRow = insertVariableInDebugPanel(variable, lastRow.rowIndex+1, mRef, mTyp, mOffset, name + '.'+tab[n].name);
-					mOffset -= tab[n].adr;
 					n = tab[n].link;
+					mTyp = tab[n].typ;
+					mRef = tab[n].ref;
+					mOffset = tab[n].adr + offset;
 				}
 			}
 		}
 	});
 }
-
-/*function insertComposedFields(variable, ref, actualRow, typ = tab[variable.id].typ, offset = 0, legacyName = (typ === arrays?'[':'')){
-	var table = document.getElementById('tab_var')
-	,		rowIndex = actualRow.rowIndex
-	,		firstRow = table.rows[rowIndex]
-	,		row
-	,		otherRow
-	,		values = Interpreter.getValueWithIndexToTab(variable.id, ref, offset, typ)
-	,		value = Array.isArray(values) ? values.shift(): values
-	,		cell1, cell2
-	,		t
-	,		i
-	,		show = false
-	,		finalRow = 0;
-	if(typ == arrays){
-		if(!Array.isArray(value))
-			typ = atab[ref].eltyp;
-		i = atab[ref].low;
-		legacyName += legacyName === '[' ? '' + (atab[ref].inxtyp === chars ? String.fromCharCode(i):i) : ', ' + (atab[ref].inxtyp === chars ? String.fromCharCode(i):i);
-	}
-	if(typ == records){
-		t = btab[ref].last;
-		if(!Array.isArray(value))
-			typ = tab[t].typ;
-	}
-
-	while(value != undefined){
-		row = table.insertRow(++rowIndex);
-		cell1 = row.insertCell(0);
-		cell2 = row.insertCell(1);
-		if(typ in stantyps){
-			cell1.innerText = legacyName+(legacyName === '['? '' : ', ')+(atab[ref].inxtyp == chars? String.fromCharCode(i):i)+']';
-			cell2.innerHTML = "<input type='text' disabled=disabled value='"+ value +"'name='"+variable.id+i+"'id='"+ variable.id +"'>";
-			i++;
-			offset += typesLength[typ];
-		}
-		else{
-			setAttributeInRow(row, variable.id);
-			formatElementsInCells(row, cell1, cell2, show, variable, offset, ref, legacyName, i, finalRow);
-			if(typ === arrays)
-				offset += atab[ref].elsize;
-			else if(typ === records){
-				offset += btab[ref].vsize;
-				t = tab[t].link;
-				typ = tab[t].typ;
-			}
-			i++;
-		}
-		value = values.shift();
-	}
-	return row;
-
-}*/
 
 function formatElementsInCells(row, cell1, cell2, show, variable, offset, ref, legacyName = '', i = 1, finalRow){
 	var table = document.getElementById('tab_var');
@@ -715,14 +610,6 @@ function adicionaFilhos(objeto){
 
 	cell1.innerHTML = objeto.name;
 	cell2.innerHTML = "<input type='text' value='"+ objeto.value +"'name='"+objeto.id+"' id='"+ objeto.id +"'>";
-}
-
-function disableVariableInput(){
-	$("#tab_var").find("input").attr("disabled", "disabled");
-}
-
-function ativarTabelaVar(){
-	$("#tab_var").find("input").removeAttr('disabled');
 }
 
 function removerTopoPilhaVar() {

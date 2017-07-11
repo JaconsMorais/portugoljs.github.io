@@ -3,7 +3,7 @@ const Interpreter = new function(){
 	var ir
 	,		pc
 	,		b
-	,		h1, h2, h3, h4, h5
+	,		h1, h2, h3, h4, h5, h6		//variáveis auxiliares para as instruções
 	,		startTime
 	,		isRunning = false
 	,		intervalExecution
@@ -473,10 +473,10 @@ const Interpreter = new function(){
 						case reals: h1 += 8; break;
 						case bools:
 						case chars: h1++; break;
-						case notyp: h1 = h1; break; //Procedimento não tem retorno, não precisa alocar espaço
+						case notyp: ; break; //Procedimento não tem retorno, não precisa alocar espaço
 						default:  h1 += 4;
 					}
-					h2 = MEMORY.getInt(h1 + 12); //{referência para tab}
+					h2 = MEMORY.getInt(h1 + 12); //referência para tab
 					h3 = tab[h2].lev;
 					display[h3 + 1] = h5;
 					h4 = MEMORY.getInt(h1 + 8) + h1;
@@ -494,8 +494,7 @@ const Interpreter = new function(){
 							mostraLinhaDepurador(DEBUGGER.stopLine--);
 						}
 						DEBUGGER.showVariablesToUser(h2);
-						//carregaVariaveis(h2+1);
-						adicionarTabelaPilha(tab[h2].name);
+						DEBUGGER.insertNameInCallStack(tab[h2].name);
 					}
 				break;
 				case 20:
@@ -651,17 +650,7 @@ const Interpreter = new function(){
 					b = MEMORY.getInt(b + 8 + ir.y);
 
 					if(DEBUGGER.isRunning){
-						removerTopoPilha();
-						/*h1 = arrayObjetoTabela[arrayObjetoTabela.length - 1];     //Última variável retirada da pilha
-						while (h1 instanceof objetoTabela && arrayObjetoTabela[arrayObjetoTabela.length-1].lv == h1.lv) {
-							if(arrayObjetoTabela[arrayObjetoTabela.length - 1].idtab <= h1.idtab){     //Verificação para chamadas recursivas
-								removerTopoPilhaVar();
-								h1 = arrayObjetoTabela.pop();
-							}
-							else
-								break;
-						}*/
-
+						DEBUGGER.removeNameInCallStack();
 						if(DEBUGGER.state == IN)
 							DEBUGGER.stopLine = kode[pc].line-1;
 						else if(DEBUGGER.state == OUT)
