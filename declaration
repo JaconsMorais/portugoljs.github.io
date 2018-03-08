@@ -1,0 +1,18 @@
+<br>
+
+### Declarações
+
+É obrigatória a declaração de todos os identificadores utilizados no algoritmo no cabeçalho do código, as variavéis, constantes, tipos de dados e subprogramas podem ser declaradas da seguinte forma:
+* **const**
+  {<identificador> = <literal>}+
+* **tipo**
+  {<identificador> = <tipo>}+
+* **var**
+  { <identificador> + { , <identificador> } : <tipo>}+
+*   [ **procedimento** | **funcao** ] [ ( [ ref ] <identificador> { , <identificador>} : <tipo> + { ; [ ref ] <identificador> {,<identificador>} : <tipo>} ) ] [ : <tipo> ]
+    < declarações >
+    **inicio**
+      < instruções >
+     **fim**
+
+<br>
