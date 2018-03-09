@@ -7,7 +7,7 @@ O compilador conta com suporte a estrutura de dados heterogenêas, suporte nativ
 
 Este projeto foi desenvolvido a partir de um subset do compilador Pascal chamado Pascal-S, 
 
-####Sintaxe da linguagem suportada
+#### Sintaxe da linguagem suportada
 * [Declarações](https://github.com/JaconsMorais/portugoljs.github.io/blob/master/declaration.md)
 * [Tipos de dados](https://github.com/JaconsMorais/portugoljs.github.io/blob/master/dataTypes.md)
 * [Estruturas de controle](https://github.com/JaconsMorais/portugoljs.github.io/blob/master/struct.md)
